@@ -25,8 +25,9 @@ import { PasteFromOffice } from '@ckeditor/ckeditor5-paste-from-office';
 import { Table, TableCellProperties, TableProperties, TableToolbar } from '@ckeditor/ckeditor5-table';
 import { TextTransformation } from '@ckeditor/ckeditor5-typing';
 import { Undo } from '@ckeditor/ckeditor5-undo';
+import Fullscreen from './plugins/fullscreen';
 declare class Editor extends DecoupledEditor {
-    static builtinPlugins: (typeof Alignment | typeof Autoformat | typeof BlockQuote | typeof Bold | typeof CKBox | typeof CloudServices | typeof Essentials | typeof FindAndReplace | typeof FontBackgroundColor | typeof FontColor | typeof FontFamily | typeof FontSize | typeof Heading | typeof Highlight | typeof Image | typeof ImageCaption | typeof ImageResize | typeof ImageStyle | typeof ImageToolbar | typeof ImageUpload | typeof Indent | typeof IndentBlock | typeof Italic | typeof Link | typeof List | typeof ListProperties | typeof MediaEmbed | typeof Paragraph | typeof PasteFromOffice | typeof PictureEditing | typeof Strikethrough | typeof Table | typeof TableCellProperties | typeof TableProperties | typeof TableToolbar | typeof TextTransformation | typeof TodoList | typeof Underline | typeof Undo)[];
+    static builtinPlugins: (typeof Fullscreen | typeof Alignment | typeof Autoformat | typeof BlockQuote | typeof Bold | typeof CKBox | typeof CloudServices | typeof Essentials | typeof FindAndReplace | typeof FontBackgroundColor | typeof FontColor | typeof FontFamily | typeof FontSize | typeof Heading | typeof Highlight | typeof Image | typeof ImageCaption | typeof ImageResize | typeof ImageStyle | typeof ImageToolbar | typeof ImageUpload | typeof Indent | typeof IndentBlock | typeof Italic | typeof Link | typeof List | typeof ListProperties | typeof MediaEmbed | typeof Paragraph | typeof PasteFromOffice | typeof PictureEditing | typeof Strikethrough | typeof Table | typeof TableCellProperties | typeof TableProperties | typeof TableToolbar | typeof TextTransformation | typeof TodoList | typeof Underline | typeof Undo)[];
     static defaultConfig: EditorConfig;
 }
 export default Editor;
