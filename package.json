@@ -2,7 +2,12 @@
   "name": "ckeditor5-customized",
   "author": "CKSource",
   "description": "A custom CKEditor 5 build made by the CKEditor 5 online builder.",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "homepage": "https://github.com/kerwin-ly/ckeditor5-customized",
+  "keywords": [
+    "ckeditor5",
+    "custom-build"
+  ],
   "license": "SEE LICENSE IN LICENSE.md",
   "main": "./build/ckeditor.js",
   "types": "./build/ckeditor.d.ts",
