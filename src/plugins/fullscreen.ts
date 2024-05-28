@@ -9,10 +9,12 @@ class Fullscreen extends Plugin {
   }
 
   private isFullscreen: boolean;
+  private fullscreenCb: Function | null;
 
   constructor(editor: Editor) {
     super(editor);
     this.isFullscreen = false;
+    this.fullscreenCb = null;
   }
 
   init() {
@@ -36,17 +38,25 @@ class Fullscreen extends Plugin {
   }
 
   private toggleFullscreen(editor: Editor) {
+    this.isFullscreen = !this.isFullscreen;
     const editorContainer = editor.ui.view.editable.element?.parentElement;
 
     if (!editorContainer) {
       return;
     }
 
-    if (!this.isFullscreen) {
+    if (this.isFullscreen) {
       this.enterFullscreen(editorContainer);
     } else {
       this.exitFullscreen(editorContainer);
     }
+    if (typeof this.fullscreenCb === "function") {
+      this.fullscreenCb(this.isFullscreen);
+    }
+  }
+
+  public toggle(callback: Function) {
+    this.fullscreenCb = callback;
   }
 
   private enterFullscreen(element: HTMLElement) {
@@ -57,7 +67,7 @@ class Fullscreen extends Plugin {
     element.style.height = "100%";
     element.style.zIndex = "9999";
     element.style.backgroundColor = "white";
-    this.isFullscreen = true;
+    // this.isFullscreen = true;
   }
 
   private exitFullscreen(element: HTMLElement) {
@@ -68,7 +78,7 @@ class Fullscreen extends Plugin {
     element.style.height = "";
     element.style.zIndex = "";
     element.style.backgroundColor = "";
-    this.isFullscreen = false;
+    // this.isFullscreen = false;
   }
 }
 

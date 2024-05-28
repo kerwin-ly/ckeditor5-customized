@@ -33,6 +33,11 @@
           const toolbarContainer = document.querySelector("#toolbar-container");
           toolbarContainer.appendChild(editor.ui.view.toolbar.element);
 
+          const myCustomPlugin = editor.plugins.get("Fullscreen");
+          myCustomPlugin.toggle((isfull) => {
+            console.log('isfull', isfull)
+          });
+
           // You can now use the editor instance
           console.log("Editor was initialized", editor);
         })
