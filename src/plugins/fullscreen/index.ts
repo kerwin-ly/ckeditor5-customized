@@ -1,7 +1,7 @@
 import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
 import { ButtonView } from "@ckeditor/ckeditor5-ui";
 import { Editor } from "@ckeditor/ckeditor5-core";
-import fullscreenIcon from "../icons/fullscreen-icon.svg";
+import fullscreenIcon from "../../icons/fullscreen-icon.svg";
 
 class Fullscreen extends Plugin {
   static get pluginName() {
