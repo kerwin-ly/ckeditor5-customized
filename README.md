@@ -26,6 +26,8 @@ Now you can install additional plugin in the build. Just follow the [Adding a pl
 
 * Fullscreen
 
+* Format Painter
+
 ### How to use it
 
 ```shell
