@@ -3,7 +3,6 @@ import { ButtonView } from "ckeditor5/src/ui";
 import BrushIcon from "../../icons/brush.svg";
 import { FORMAT_PAINTER } from ".";
 import { Command } from "@ckeditor/ckeditor5-core";
-import './style.css';
 
 export default class FormatPainterUI extends Plugin {
 	private isActivated: boolean;
@@ -34,10 +33,8 @@ export default class FormatPainterUI extends Plugin {
 				this.isActivated = !this.isActivated;
 				if (this.isActivated) {
 					editor.execute(FORMAT_PAINTER, { type: "copy" });
-					document.body.classList.add('cursor-format-painter');
 				} else {
 					editor.execute(FORMAT_PAINTER, { type: "reset" });
-					document.body.classList.remove('cursor-format-painter');
 				}
 				editor.editing.view.focus();
 			});

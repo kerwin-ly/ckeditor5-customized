@@ -1,5 +1,3 @@
-
-
 import { Command, Editor } from "@ckeditor/ckeditor5-core";
 import { Element, Writer, Selection, Range, Item } from "ckeditor5/src/engine";
 
@@ -20,11 +18,13 @@ export class FormatPainterCommand extends Command {
     const start = selection.getFirstPosition();
     const end = selection.getLastPosition();
     if (!start || !end || this._isNone(start, end)) {
-    	return;
+      return;
     }
 
     const range = model.createRange(start, end);
-    const formatNodes = Array.from(range.getWalker()).filter((walker) => !!(walker.item as any).textNode);
+    const formatNodes = Array.from(range.getWalker()).filter(
+      (walker) => !!(walker.item as any).textNode
+    );
 
     // if (!formatNodes.length) {
     // 	this.reset();
