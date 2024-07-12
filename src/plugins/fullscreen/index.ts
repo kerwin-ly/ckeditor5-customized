@@ -76,10 +76,11 @@ class Fullscreen extends Plugin {
     newElement.appendChild(element);
     document.body.appendChild(newElement);
 
-    element.style.width = "80%";
-    element.style.height = "80%";
+    element.style.width = "100%";
+    element.style.height = "100%";
     element.style.zIndex = "3000";
     element.style.backgroundColor = "white";
+    element.style.marginTop = "0"
     // this.isFullscreen = true;
   }
 
@@ -90,7 +91,8 @@ class Fullscreen extends Plugin {
   ) {
     document.body.removeChild(document.querySelector(".editor-fullscreen")!);
     parentNode.appendChild(element);
-
+    
+    element.style.marginTop = "50px"
     element.style.position = "";
     element.style.top = "";
     element.style.left = "";
