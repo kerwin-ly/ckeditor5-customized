@@ -22,7 +22,7 @@ yarn build
 
 Now you can install additional plugin in the build. Just follow the [Adding a plugin to an editor tutorial](https://ckeditor.com/docs/ckeditor5/latest/installation/plugins/installing-plugins.html#adding-a-plugin-to-an-editor)
 
-### Plugins
+### Extra Plugins
 
 * Fullscreen
 
