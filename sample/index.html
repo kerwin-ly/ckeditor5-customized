@@ -12,6 +12,27 @@
       .ck.ck-editor__editable_inline {
         border: 1px solid #ccc !important;
       }
+      .editor-fullscreen {
+        display: flex;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .v-modal {
+        z-index: 2999;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        opacity: 0.5;
+      }
+      #editor {
+        height: 90%;
+      }
     </style>
     <!-- Include CKEditor 5 Decoupled Editor build -->
     <script src="../build/ckeditor.js"></script>
@@ -34,9 +55,7 @@
           toolbarContainer.appendChild(editor.ui.view.toolbar.element);
 
           const myCustomPlugin = editor.plugins.get("Fullscreen");
-          myCustomPlugin.toggle((isfull) => {
-            console.log('isfull', isfull)
-          });
+          myCustomPlugin.toggle((isfull) => {});
 
           // You can now use the editor instance
           console.log("Editor was initialized", editor);
