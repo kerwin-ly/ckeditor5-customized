@@ -29,26 +29,28 @@ class Fullscreen extends Plugin {
         tooltip: true,
       });
 
+      const editorContainer = editor.ui.view.editable.element?.parentElement!;
+      const editorParentNode = editorContainer?.parentElement!;
+
       view.on("execute", () => {
-        this.toggleFullscreen(editor);
+        this.toggleFullscreen(editor, editorContainer, editorParentNode);
       });
 
       return view;
     });
   }
 
-  private toggleFullscreen(editor: Editor) {
+  private toggleFullscreen(
+    editor: Editor,
+    editorContainer: HTMLElement,
+    editorParentNode: HTMLElement
+  ) {
     this.isFullscreen = !this.isFullscreen;
-    const editorContainer = editor.ui.view.editable.element?.parentElement;
-
-    if (!editorContainer) {
-      return;
-    }
 
     if (this.isFullscreen) {
-      this.enterFullscreen(editorContainer);
+      this.enterFullscreen(editor, editorContainer, editorParentNode);
     } else {
-      this.exitFullscreen(editorContainer);
+      this.exitFullscreen(editor, editorContainer, editorParentNode);
     }
     if (typeof this.fullscreenCb === "function") {
       this.fullscreenCb(this.isFullscreen);
@@ -59,18 +61,36 @@ class Fullscreen extends Plugin {
     this.fullscreenCb = callback;
   }
 
-  private enterFullscreen(element: HTMLElement) {
-    element.style.position = "fixed";
-    element.style.top = "0";
-    element.style.left = "0";
-    element.style.width = "100%";
-    element.style.height = "100%";
-    element.style.zIndex = "9999";
+  private enterFullscreen(
+    editor: Editor,
+    element: HTMLElement,
+    parentNode: HTMLElement
+  ) {
+    let newElement = document.createElement("div");
+    newElement.className = "editor-fullscreen";
+    let coverModal = document.createElement("div");
+    coverModal.className = "v-modal";
+    newElement.appendChild(coverModal);
+
+    parentNode && parentNode.removeChild(element);
+    newElement.appendChild(element);
+    document.body.appendChild(newElement);
+
+    element.style.width = "80%";
+    element.style.height = "80%";
+    element.style.zIndex = "3000";
     element.style.backgroundColor = "white";
     // this.isFullscreen = true;
   }
 
-  private exitFullscreen(element: HTMLElement) {
+  private exitFullscreen(
+    editor: Editor,
+    element: HTMLElement,
+    parentNode: HTMLElement
+  ) {
+    document.body.removeChild(document.querySelector(".editor-fullscreen")!);
+    parentNode.appendChild(element);
+
     element.style.position = "";
     element.style.top = "";
     element.style.left = "";
