@@ -76,11 +76,17 @@ class Fullscreen extends Plugin {
     newElement.appendChild(element);
     document.body.appendChild(newElement);
 
+    newElement.style.position = "fixed";
+    newElement.style.width = "100%";
+    newElement.style.height = "100%";
+    newElement.style.zIndex = "9999";
+
+    element.style.position = "relative";
     element.style.width = "100%";
     element.style.height = "100%";
     element.style.zIndex = "3000";
     element.style.backgroundColor = "white";
-    element.style.marginTop = "0"
+    element.style.marginTop = "0";
     // this.isFullscreen = true;
   }
 
@@ -91,8 +97,8 @@ class Fullscreen extends Plugin {
   ) {
     document.body.removeChild(document.querySelector(".editor-fullscreen")!);
     parentNode.appendChild(element);
-    
-    element.style.marginTop = "50px"
+
+    element.style.marginTop = "50px";
     element.style.position = "";
     element.style.top = "";
     element.style.left = "";
