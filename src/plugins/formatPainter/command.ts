@@ -93,6 +93,7 @@ export class FormatPainterCommand extends Command {
       }
     });
     this.waiting = attrs;
+    // console.log('copy attrs', attrs)
   }
 
   public apply(): void {
@@ -106,7 +107,6 @@ export class FormatPainterCommand extends Command {
     }
 
     const selectionRange = model.createRange(start, end);
-
     model.change((writer: Writer) => {
       const walkers = selectionRange.getWalker();
       for (const walker of walkers) {
@@ -116,10 +116,34 @@ export class FormatPainterCommand extends Command {
             walker.previousPosition,
             walker.nextPosition
           );
+
           this.setAttributes(writer, range);
         }
       }
     });
+    // const selectionRange = model.createRange(start, end);
+    // model.change((writer: Writer) => {
+    //   const walkers = selectionRange.getWalker({ singleCharacters: true });
+    //   for (const walker of walkers) {
+    //     const item = walker.item as any;
+
+    //     if (item.is("textProxy") || item.is("text")) {
+    //       // Ensure valid positions for range creation
+    //       const rangeStart = walker.previousPosition;
+    //       const rangeEnd = walker.nextPosition;
+
+    //       if (
+    //         rangeStart.root === model.document.getRoot() &&
+    //         rangeEnd.root === model.document.getRoot()
+    //       ) {
+    //         const range = writer.createRange(rangeStart, rangeEnd);
+    //         console.log("Applying attributes to range:", range);
+
+    //         this.setAttributes(writer, range);
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   public setAttributes(writer: Writer, itemOrRange: Range): void {
