@@ -31,9 +31,15 @@ class Fullscreen extends Plugin {
 
       const editorContainer = editor.ui.view.editable.element?.parentElement!;
       const editorParentNode = editorContainer?.parentElement!;
+      const originHeight = editorContainer.style.height;
 
       view.on("execute", () => {
-        this.toggleFullscreen(editor, editorContainer, editorParentNode);
+        this.toggleFullscreen(
+          editor,
+          editorContainer,
+          editorParentNode,
+          originHeight
+        );
       });
 
       return view;
@@ -43,14 +49,20 @@ class Fullscreen extends Plugin {
   private toggleFullscreen(
     editor: Editor,
     editorContainer: HTMLElement,
-    editorParentNode: HTMLElement
+    editorParentNode: HTMLElement,
+    originHeight: string
   ) {
     this.isFullscreen = !this.isFullscreen;
 
     if (this.isFullscreen) {
       this.enterFullscreen(editor, editorContainer, editorParentNode);
     } else {
-      this.exitFullscreen(editor, editorContainer, editorParentNode);
+      this.exitFullscreen(
+        editor,
+        editorContainer,
+        editorParentNode,
+        originHeight
+      );
     }
     if (typeof this.fullscreenCb === "function") {
       this.fullscreenCb(this.isFullscreen);
@@ -76,28 +88,41 @@ class Fullscreen extends Plugin {
     newElement.appendChild(element);
     document.body.appendChild(newElement);
 
+    newElement.style.position = "fixed";
+    newElement.style.width = "100%";
+    newElement.style.height = "100%";
+    newElement.style.zIndex = "9998";
+
+    element.style.position = "relative";
     element.style.width = "100%";
     element.style.height = "100%";
     element.style.zIndex = "3000";
     element.style.backgroundColor = "white";
-    element.style.marginTop = "0"
+    element.style.marginTop = "0";
     // this.isFullscreen = true;
   }
 
   private exitFullscreen(
     editor: Editor,
     element: HTMLElement,
-    parentNode: HTMLElement
+    parentNode: HTMLElement,
+    originHeight: string
   ) {
     document.body.removeChild(document.querySelector(".editor-fullscreen")!);
     parentNode.appendChild(element);
-    
-    element.style.marginTop = "50px"
+
+    if (originHeight) {
+      element.style.height = originHeight;
+    } else {
+      element.style.height = "";
+    }
+
+    element.style.marginTop = "50px";
     element.style.position = "";
     element.style.top = "";
     element.style.left = "";
     element.style.width = "";
-    element.style.height = "";
+    // element.style.height = "";
     element.style.zIndex = "";
     element.style.backgroundColor = "";
     // this.isFullscreen = false;
