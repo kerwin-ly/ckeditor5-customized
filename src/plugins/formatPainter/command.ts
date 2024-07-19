@@ -1,6 +1,11 @@
 import { Command, Editor } from "@ckeditor/ckeditor5-core";
 import { Element, Writer, Selection, Range, Item } from "ckeditor5/src/engine";
 
+const headingMapping = {
+  heading1: "huge",
+  heading2: "big",
+};
+
 export class FormatPainterCommand extends Command {
   private waiting: any;
   private formatNodes: any[] = [];
@@ -79,21 +84,33 @@ export class FormatPainterCommand extends Command {
     let attrs = {};
     this.formatNodes.forEach((node) => {
       const _attrs = Object.fromEntries(node.item.textNode.getAttributes());
+      const parentName = node.item.textNode.parent?.name;
+
+      // set attrs for heading
+      if (parentName === "heading1" || parentName === "heading2") {
+        Object.assign(_attrs, {
+          fontSize: headingMapping[parentName as "heading1" | "heading2"] || "",
+          bold: true,
+        });
+      }
+
       const _keys = Object.keys(_attrs);
       if (_attrs.hasOwnProperty("linkHref")) {
         delete _attrs.linkHref;
       }
 
       _keys.forEach((key: string) => {
-        if (attrs.hasOwnProperty(key)) delete _attrs[key];
+        if (attrs.hasOwnProperty(key)) {
+          delete _attrs[key];
+        }
       });
 
       if (_keys.length) {
         attrs = Object.assign({}, attrs, _attrs);
       }
     });
+    console.log("copy attrs", attrs);
     this.waiting = attrs;
-    // console.log('copy attrs', attrs)
   }
 
   public apply(): void {
@@ -121,29 +138,6 @@ export class FormatPainterCommand extends Command {
         }
       }
     });
-    // const selectionRange = model.createRange(start, end);
-    // model.change((writer: Writer) => {
-    //   const walkers = selectionRange.getWalker({ singleCharacters: true });
-    //   for (const walker of walkers) {
-    //     const item = walker.item as any;
-
-    //     if (item.is("textProxy") || item.is("text")) {
-    //       // Ensure valid positions for range creation
-    //       const rangeStart = walker.previousPosition;
-    //       const rangeEnd = walker.nextPosition;
-
-    //       if (
-    //         rangeStart.root === model.document.getRoot() &&
-    //         rangeEnd.root === model.document.getRoot()
-    //       ) {
-    //         const range = writer.createRange(rangeStart, rangeEnd);
-    //         console.log("Applying attributes to range:", range);
-
-    //         this.setAttributes(writer, range);
-    //       }
-    //     }
-    //   }
-    // });
   }
 
   public setAttributes(writer: Writer, itemOrRange: Range): void {
