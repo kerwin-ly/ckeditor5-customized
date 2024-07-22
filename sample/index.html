@@ -48,11 +48,13 @@
       <!-- Container for the editor -->
       <div id="editor"></div>
     </div>
+    <script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
 
     <script>
       // Initialize the CKEditor 5 Decoupled Editor
       DecoupledEditor.create(document.querySelector("#editor"), {})
         .then((editor) => {
+          CKEditorInspector.attach(editor);
           // Append the toolbar to the toolbar container
           const toolbarContainer = document.querySelector("#toolbar-container");
           toolbarContainer.appendChild(editor.ui.view.toolbar.element);
