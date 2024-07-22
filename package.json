@@ -2,7 +2,7 @@
   "name": "ckeditor5-customized",
   "author": "CKSource",
   "description": "A custom CKEditor 5 build made by the CKEditor 5 online builder.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "homepage": "https://github.com/kerwin-ly/ckeditor5-customized",
   "keywords": [
     "ckeditor5",
@@ -39,6 +39,7 @@
     "@ckeditor/ckeditor5-core": "41.4.2",
     "@ckeditor/ckeditor5-dev-translations": "^32.1.2",
     "@ckeditor/ckeditor5-dev-utils": "^32.1.2",
+    "@ckeditor/ckeditor5-inspector": "^4.1.0",
     "@ckeditor/ckeditor5-theme-lark": "41.4.2",
     "css-loader": "^5.2.7",
     "postcss": "^8.4.38",
@@ -56,5 +57,7 @@
     "build": "webpack --mode production",
     "postbuild": "tsc --declaration --declarationDir build --stripInternal --emitDeclarationOnly"
   },
-  "files": ["build/**/*"]
+  "files": [
+    "build/**/*"
+  ]
 }
