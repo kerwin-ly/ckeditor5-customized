@@ -83,30 +83,29 @@ export class FormatPainterCommand extends Command {
 		this.value = true;
 		let attrs = {};
 		this.formatNodes.forEach((node) => {
-			const _attrs = Object.fromEntries(node.item.textNode.getAttributes());
-			const parentName = node.item.textNode.parent?.name;
-
+			const newAttrs = Object.fromEntries(node.item.textNode.getAttributes());
+			// const parentName = node.item.textNode.parent?.name;
 			// set attrs for heading
-			if (parentName === 'heading1' || parentName === 'heading2') {
-				Object.assign(_attrs, {
-					fontSize: headingMapping[parentName as 'heading1' | 'heading2'] || '',
-					bold: true
-				});
-			}
+			// if (parentName === 'heading1' || parentName === 'heading2') {
+			// 	Object.assign(newAttrs, {
+			// 		fontSize: headingMapping[parentName as 'heading1' | 'heading2'] || '',
+			// 		bold: true
+			// 	});
+			// }
 
-			const _keys = Object.keys(_attrs);
-			if (_attrs.hasOwnProperty('linkHref')) {
-				delete _attrs.linkHref;
+			const _keys = Object.keys(newAttrs);
+			if (newAttrs.hasOwnProperty('linkHref')) {
+				delete newAttrs.linkHref;
 			}
 
 			_keys.forEach((key: string) => {
 				if (attrs.hasOwnProperty(key)) {
-					delete _attrs[key];
+					delete newAttrs[key];
 				}
 			});
 
 			if (_keys.length) {
-				attrs = Object.assign({}, attrs, _attrs);
+				attrs = Object.assign({}, attrs, newAttrs);
 			}
 		});
 		this.waiting = attrs;

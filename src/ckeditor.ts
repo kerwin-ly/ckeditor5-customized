@@ -115,6 +115,8 @@ class Editor extends DecoupledEditor {
         "underline",
         "strikethrough",
         "|",
+				"formatPainter",
+        "|",
         "alignment",
         "|",
         "numberedList",
@@ -134,8 +136,7 @@ class Editor extends DecoupledEditor {
         "|",
         "undo",
         "redo",
-        "fullscreen",
-				"formatPainter"
+        "fullscreen"
       ],
     },
     language: "en",
@@ -157,31 +158,13 @@ class Editor extends DecoupledEditor {
         "tableProperties",
       ],
     },
-    heading: {
-      options: [
-          { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-          // { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'text-huge' },
-          // { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'text-big' },
-          {
-            model: 'heading1',
-            view: {
-                name: 'h1',
-                classes: 'text-huge'
-            },
-            title: 'Heading 1',
-            class: 'text-huge',
-        },
-          {
-            model: 'heading2',
-            view: {
-                name: 'h2',
-                classes: 'text-big'
-            },
-            title: 'Heading 2',
-            class: 'text-big',
-        }
-      ]
-    }
+    // heading: {
+    //   options: [
+    //       { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+    //       { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'text-huge' },
+    //       { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'text-big' }
+    //   ]
+    // }
   }
 }
 
