@@ -92,6 +92,8 @@ class Fullscreen extends Plugin {
     newElement.style.width = "100%";
     newElement.style.height = "100%";
     newElement.style.zIndex = "9998";
+    newElement.style.left = "0";
+    newElement.style.top = "0";
 
     element.style.position = "relative";
     element.style.width = "100%";
