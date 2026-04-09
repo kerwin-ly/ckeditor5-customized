@@ -169,3 +169,15 @@ class Editor extends DecoupledEditor {
 }
 
 export default Editor;
+
+// Re-export commonly used types and plugins for external TypeScript usage.
+export { Editor };
+export type { EditorConfig };
+export {
+  FormatPainter,
+  Fullscreen,
+};
+export { FORMAT_PAINTER } from "./plugins/formatPainter";
+export { FormatPainterCommand } from "./plugins/formatPainter/command";
+export { FormatPainterEditing } from "./plugins/formatPainter/editing";
+export { default as FormatPainterUI } from "./plugins/formatPainter/ui";
