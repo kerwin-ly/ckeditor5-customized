@@ -49,7 +49,17 @@ import {
 } from "@ckeditor/ckeditor5-table";
 import { TextTransformation } from "@ckeditor/ckeditor5-typing";
 import { Undo } from "@ckeditor/ckeditor5-undo";
-import { Fullscreen, FormatPainter } from "./plugins";
+import {
+	FormatPainter,
+	FULLSCREEN_COMMAND,
+	Fullscreen,
+	FullscreenEditing,
+	type FullscreenChangeCallback,
+	type FullscreenConfig,
+	FullscreenCommand,
+	type FullscreenToggleHost,
+	FullscreenUI,
+} from "./plugins";
 
 // You can read more about extending the build with additional plugins in the "Installing plugins" guide.
 // See https://ckeditor.com/docs/ckeditor5/latest/installation/plugins/installing-plugins.html for details.
@@ -136,7 +146,7 @@ class Editor extends DecoupledEditor {
         "|",
         "undo",
         "redo",
-        "fullscreen"
+        FULLSCREEN_COMMAND,
       ],
     },
     language: "en",
@@ -174,8 +184,15 @@ export default Editor;
 export { Editor };
 export type { EditorConfig };
 export {
-  FormatPainter,
-  Fullscreen,
+	FormatPainter,
+	Fullscreen,
+	FULLSCREEN_COMMAND,
+	FullscreenCommand,
+	FullscreenEditing,
+	type FullscreenChangeCallback,
+	type FullscreenConfig,
+	type FullscreenToggleHost,
+	FullscreenUI,
 };
 export { FORMAT_PAINTER } from "./plugins/formatPainter";
 export { FormatPainterCommand } from "./plugins/formatPainter/command";

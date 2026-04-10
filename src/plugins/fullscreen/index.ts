@@ -1,134 +1,55 @@
-import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
-import { ButtonView } from "@ckeditor/ckeditor5-ui";
-import { Editor } from "@ckeditor/ckeditor5-core";
-import fullscreenIcon from "../../icons/fullscreen-icon.svg";
+import { Plugin } from "@ckeditor/ckeditor5-core";
 
-class Fullscreen extends Plugin {
-  static get pluginName() {
-    return "Fullscreen";
-  }
+import { FullscreenEditing, type FullscreenChangeCallback } from "./editing";
+import FullscreenUI from "./ui";
 
-  private isFullscreen: boolean;
-  private fullscreenCb: Function | null;
+export { FULLSCREEN_COMMAND, type FullscreenConfig } from "./config";
+export { FullscreenCommand, type FullscreenToggleHost } from "./command";
+export { FullscreenEditing, type FullscreenChangeCallback } from "./editing";
+export { default as FullscreenUI } from "./ui";
 
-  constructor(editor: Editor) {
-    super(editor);
-    this.isFullscreen = false;
-    this.fullscreenCb = null;
-  }
+/**
+ * Fullscreen for the decoupled editor (toolbar + command + DOM), split like {@link FormatPainter}.
+ *
+ * ### Why the button was missing (vs FormatPainter)
+ * The original implementation read `editable.element` in `init()` and returned early before
+ * `componentFactory.add()`. On {@link DecoupledEditor}, `initPlugins()` runs **before** `ui.init()` /
+ * `view.render()`, so the editable is not in the DOM yet — the factory was never registered.
+ * {@link FormatPainterUI} only registers the factory in `init()`; the factory **callback** runs later
+ * during toolbar fill, so it never depended on that early DOM read.
+ *
+ * ### Viewport coverage
+ * By default the layer mounts on `document.body` and uses `100vw` / `100vh` (and `min-height: 100dvh`)
+ * so the editor covers the full browser. Use `fullscreen.inPlace` when the editor must stay inside a
+ * focus-trapped container (e.g. Ant Design `Modal`).
+ */
+export default class Fullscreen extends Plugin {
+	public static get requires() {
+		return [FullscreenEditing, FullscreenUI] as const;
+	}
 
-  init() {
-    const editor = this.editor;
+	public static get pluginName() {
+		return "Fullscreen" as const;
+	}
 
-    editor.ui.componentFactory.add("fullscreen", (locale) => {
-      const view = new ButtonView(locale);
+	public get isFullscreen(): boolean {
+		return this._editing.isFullscreen;
+	}
 
-      view.set({
-        label: "Fullscreen",
-        icon: fullscreenIcon,
-        tooltip: true,
-      });
+	/**
+	 * @deprecated Use {@link onFullscreenChange}.
+	 */
+	public toggle(callback: FullscreenChangeCallback): void {
+		this._editing.toggle(callback);
+	}
 
-      const editorContainer = editor.ui.view.editable.element?.parentElement!;
-      const editorParentNode = editorContainer?.parentElement!;
-      const originHeight = editorContainer.style.height;
+	public onFullscreenChange(callback: FullscreenChangeCallback | null): void {
+		this._editing.onFullscreenChange(callback);
+	}
 
-      view.on("execute", () => {
-        this.toggleFullscreen(
-          editor,
-          editorContainer,
-          editorParentNode,
-          originHeight
-        );
-      });
-
-      return view;
-    });
-  }
-
-  private toggleFullscreen(
-    editor: Editor,
-    editorContainer: HTMLElement,
-    editorParentNode: HTMLElement,
-    originHeight: string
-  ) {
-    this.isFullscreen = !this.isFullscreen;
-
-    if (this.isFullscreen) {
-      this.enterFullscreen(editor, editorContainer, editorParentNode);
-    } else {
-      this.exitFullscreen(
-        editor,
-        editorContainer,
-        editorParentNode,
-        originHeight
-      );
-    }
-    if (typeof this.fullscreenCb === "function") {
-      this.fullscreenCb(this.isFullscreen);
-    }
-  }
-
-  public toggle(callback: Function) {
-    this.fullscreenCb = callback;
-  }
-
-  private enterFullscreen(
-    editor: Editor,
-    element: HTMLElement,
-    parentNode: HTMLElement
-  ) {
-    let newElement = document.createElement("div");
-    newElement.className = "editor-fullscreen";
-    let coverModal = document.createElement("div");
-    coverModal.className = "v-modal";
-    newElement.appendChild(coverModal);
-
-    parentNode && parentNode.removeChild(element);
-    newElement.appendChild(element);
-    document.body.appendChild(newElement);
-
-    newElement.style.position = "fixed";
-    newElement.style.width = "100%";
-    newElement.style.height = "100%";
-    newElement.style.zIndex = "9998";
-    newElement.style.left = "0";
-    newElement.style.top = "0";
-
-    element.style.position = "relative";
-    element.style.width = "100%";
-    element.style.height = "100%";
-    element.style.zIndex = "3000";
-    element.style.backgroundColor = "white";
-    element.style.marginTop = "0";
-    // this.isFullscreen = true;
-  }
-
-  private exitFullscreen(
-    editor: Editor,
-    element: HTMLElement,
-    parentNode: HTMLElement,
-    originHeight: string
-  ) {
-    document.body.removeChild(document.querySelector(".editor-fullscreen")!);
-    parentNode.appendChild(element);
-
-    if (originHeight) {
-      element.style.height = originHeight;
-    } else {
-      element.style.height = "";
-    }
-
-    element.style.marginTop = "50px";
-    element.style.position = "";
-    element.style.top = "";
-    element.style.left = "";
-    element.style.width = "";
-    // element.style.height = "";
-    element.style.zIndex = "";
-    element.style.backgroundColor = "";
-    // this.isFullscreen = false;
-  }
+	private get _editing(): FullscreenEditing {
+		return this.editor.plugins.get(
+			FullscreenEditing.pluginName
+		) as FullscreenEditing;
+	}
 }
-
-export default Fullscreen;

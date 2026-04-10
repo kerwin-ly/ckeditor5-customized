@@ -3,71 +3,185 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CKEditor 5 Decoupled Editor</title>
+    <title>CKEditor 5 — Fullscreen plugin demo</title>
     <style>
+      body {
+        font-family: system-ui, sans-serif;
+        line-height: 1.45;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 16px 20px 48px;
+      }
+      code {
+        font-size: 0.9em;
+        background: #f4f4f5;
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
       .ck.ck-balloon-panel.ck-balloon-panel_visible.ck-powered-by-balloon {
         display: none;
       }
       .ck-editor__editable_inline {
-        min-height: 300px;
+        min-height: 220px;
         border: 1px solid #ccc;
       }
       .ck.ck-editor__editable_inline {
         border: 1px solid #ccc !important;
       }
-      .editor-fullscreen {
+      /**
+       * Fullscreen layer: stretch children (do NOT use align-items: center here —
+       * that keeps the flex item at content height and looks like “only half the screen”). */
+      .editor-fullscreen.ck-fullscreen,
+      .ck-fullscreen.editor-fullscreen {
         display: flex;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
       }
       .v-modal {
-        z-index: 2999;
-        position: fixed;
+        z-index: 0;
+        position: absolute;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         background-color: #000;
-        opacity: 0.5;
+        opacity: 0.45;
+        pointer-events: none;
       }
-      #editor {
-        height: 90%;
+      .demo-editor-host {
+        height: 280px;
+        border: 1px dashed #c4c4c4;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .status-pill {
+        display: inline-block;
+        margin: 8px 0;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        background: #e8f4ff;
+        color: #0958d9;
+      }
+      .status-pill.on {
+        background: #fff7e6;
+        color: #d46b08;
+      }
+      section {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+      }
+      .demo-dialog-sim {
+        /* Many Element / Ant Design dialogs use transform on the root — fixed becomes relative to this box, not the viewport. */
+        transform: translateZ(0);
+        width: min(720px, 92vw);
+        height: 380px;
+        margin: 16px 0;
+        padding: 12px 14px;
+        border: 1px solid #d9d9d9;
+        border-radius: 10px;
+        background: #fafafa;
+        box-sizing: border-box;
+        overflow: auto;
+      }
+      .demo-note {
+        font-size: 14px;
+        color: #555;
       }
     </style>
-    <!-- Include CKEditor 5 Decoupled Editor build -->
     <script src="../build/ckeditor.js"></script>
-    <!-- Replace with the correct path -->
+    <script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
   </head>
   <body>
-    <div style="margin-top: 50px">
-      <!-- Container for the toolbar -->
-      <div id="toolbar-container"></div>
-      <!-- Container for the editor -->
-      <div id="editor"></div>
-    </div>
-    <script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
+    <h1>CKEditor 5 — Fullscreen demo</h1>
+    <p class="demo-note">
+      Use the toolbar <strong>Fullscreen</strong> button or press <kbd>Esc</kbd> to exit while
+      fullscreen. Default behavior mounts on <code>document.body</code> with
+      <code>100vw</code>/<code>100vh</code> (and <code>100dvh</code> where supported) so the editor
+      covers the <strong>entire browser</strong>. Section B uses <code>inPlace: true</code> for a
+      modal/focus-trap–friendly mode inside a transformed box.
+    </p>
+
+    <section>
+      <h2>A. Normal page (default — full viewport)</h2>
+      <p class="demo-note">
+        <code>fullscreen: &#123;&#125;</code> (or omit). Layer is on <code>body</code> and sized to the
+        viewport.
+      </p>
+      <div id="status-a" class="status-pill" aria-live="polite">Fullscreen: off</div>
+      <div id="toolbar-a"></div>
+      <div id="editor-a" class="demo-editor-host"></div>
+    </section>
+
+    <section>
+      <h2>B. Transformed “dialog” with <code>inPlace: true</code></h2>
+      <p class="demo-note">
+        This box uses <code>transform: translateZ(0)</code>. With <code>inPlace: true</code>, the
+        fullscreen layer stays inside the subtree (focus-trap friendly); sizing uses <code>100%</code>
+        of that containing block instead of the whole browser.
+      </p>
+      <div class="demo-dialog-sim">
+        <div id="status-b" class="status-pill" aria-live="polite">Fullscreen: off</div>
+        <div id="toolbar-b"></div>
+        <div id="editor-b" class="demo-editor-host"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>C. Same dialog shell, default fullscreen (mounts on <code>body</code>)</h2>
+      <p class="demo-note">
+        No <code>inPlace</code>: editor moves to <code>document.body</code> and fills the full viewport
+        even though the editor lives in this box initially. In a real Ant Design <code>Modal</code>,
+        consider <code>focusLock=&#123;false&#125;</code> (v5) while fullscreen if focus is trapped.
+      </p>
+      <div class="demo-dialog-sim">
+        <div id="status-c" class="status-pill" aria-live="polite">Fullscreen: off</div>
+        <div id="toolbar-c"></div>
+        <div id="editor-c" class="demo-editor-host"></div>
+      </div>
+    </section>
 
     <script>
-      // Initialize the CKEditor 5 Decoupled Editor
-      DecoupledEditor.create(document.querySelector("#editor"), {})
-        .then((editor) => {
-          CKEditorInspector.attach(editor);
-          // Append the toolbar to the toolbar container
-          const toolbarContainer = document.querySelector("#toolbar-container");
-          toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      function bindFullscreenStatus(editor, el) {
+        const fs = editor.plugins.get("Fullscreen");
+        const sync = function (on) {
+          el.textContent = "Fullscreen: " + (on ? "on" : "off");
+          el.classList.toggle("on", !!on);
+        };
+        sync(false);
+        fs.onFullscreenChange(sync);
+      }
 
-          const myCustomPlugin = editor.plugins.get("Fullscreen");
-          myCustomPlugin.toggle((isfull) => {});
-
-          // You can now use the editor instance
-          console.log("Editor was initialized", editor);
-        })
-        .catch((error) => {
-          console.error("There was a problem initializing the editor.", error);
+      function createDemo(toolbarSel, editorSel, fullscreenExtra) {
+        var host = document.querySelector(editorSel);
+        return DecoupledEditor.create(host, {
+          fullscreen: fullscreenExtra || {},
+        }).then(function (editor) {
+          document
+            .querySelector(toolbarSel)
+            .appendChild(editor.ui.view.toolbar.element);
+          return editor;
         });
+      }
+
+      Promise.all([
+        createDemo("#toolbar-a", "#editor-a").then(function (editor) {
+          CKEditorInspector.attach(editor);
+          bindFullscreenStatus(editor, document.querySelector("#status-a"));
+        }),
+        createDemo("#toolbar-b", "#editor-b", { inPlace: true }).then(function (
+          editor
+        ) {
+          bindFullscreenStatus(editor, document.querySelector("#status-b"));
+        }),
+        createDemo("#toolbar-c", "#editor-c").then(function (editor) {
+          bindFullscreenStatus(editor, document.querySelector("#status-c"));
+        }),
+      ]).catch(function (err) {
+        console.error("Demo init failed:", err);
+      });
     </script>
   </body>
 </html>

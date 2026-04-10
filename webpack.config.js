@@ -95,6 +95,21 @@ module.exports = (env, argv) => {
 					}
 				} ]
 			} ]
+		},
+
+		// Used by `yarn dev` (`webpack serve`). Serves the repo root so `/sample/index.html`
+		// resolves `../build/ckeditor.js`; writes the bundle to disk so that script URL works.
+		devServer: {
+			static: {
+				directory: path.join( __dirname ),
+				watch: true
+			},
+			devMiddleware: {
+				writeToDisk: true
+			},
+			port: 8080,
+			open: '/sample/index.html',
+			hot: false
 		}
 	}
 };
