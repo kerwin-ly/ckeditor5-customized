@@ -41,27 +41,52 @@ Follow the official guide: [Adding a plugin to an editor](https://ckeditor.com/d
 
 ### Format Painter
 
-There is **no** `editor.config` block for this plugin. It is controlled via the toolbar item and the command API.
+**Editor configuration** (`EditorConfig.formatPainter`):
 
-| Item | Value |
-|------|--------|
-| Toolbar item name | `formatPainter` |
-| Command name | `formatPainter` (see exported `FORMAT_PAINTER`) |
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `clearOnBlur` | `boolean` | `false` | When `true`, resets on editable blur. |
+| `applyTrigger` | `'mouseup' \| 'selectionChange' \| 'manual'` | `'mouseup'` | When active, which event auto-triggers apply (or never, for `manual`). |
+| `mode` | `'first' \| 'common' \| 'union'` | `'first'` | How to compute copied attributes from multi-node selections. |
+| `include` | `readonly string[] \| 'all'` | `'all'` | Allowlist of attribute names to copy/apply. |
+| `exclude` | `readonly string[]` | `[]` | Denylist of attribute names to copy/apply. |
 
-**Command:** `editor.execute('formatPainter', { type })`
+**UI behavior:**
 
-| `type` | Behavior |
-|--------|----------|
-| `'copy'` | Copies formatting from the current non-empty selection (when the command is enabled). |
-| `'apply'` | Applies copied formatting to the current selection (used by the UI after copy). |
+- Single click = **single-use** (copies formatting, auto-resets after the next apply).
+- Double click = **persistent** (stays active until you click again to reset).
+
+**Command:** `editor.execute('formatPainter', { action, persistent? })` (also supports legacy `{ type }`)
+
+| `action` | Behavior |
+|----------|----------|
+| `'copy'` | Copies formatting from the current non-collapsed selection (when enabled). |
+| `'apply'` | Applies copied formatting to the current selection (auto-resets unless the last copy used `persistent: true`). |
 | `'reset'` | Clears the format-painter state. |
 
-The toolbar button toggles copy/reset; mouseup applies when active. Integrations can also use `editor.commands.get('formatPainter')` for `isEnabled`, `value`, etc.
+Integrations can use `editor.commands.get('formatPainter')` for `isEnabled`, `value` (active), etc.
 
 **TypeScript imports from this package:**
 
 ```ts
-import DecoupledEditor, { FORMAT_PAINTER } from "ckeditor5-customized";
+import DecoupledEditor, {
+  FORMAT_PAINTER,
+  type FormatPainterConfig,
+} from "ckeditor5-customized";
+```
+
+**Example (all parameters):**
+
+```js
+DecoupledEditor.create(element, {
+  formatPainter: {
+    clearOnBlur: false,
+    applyTrigger: "mouseup",
+    mode: "first",
+    include: "all",
+    exclude: ["linkHref"],
+  },
+});
 ```
 
 ---

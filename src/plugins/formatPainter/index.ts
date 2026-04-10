@@ -2,7 +2,12 @@ import { Plugin } from "ckeditor5/src/core.js";
 import { FormatPainterEditing } from "./editing";
 import FormatPainterUI from "./ui";
 
-export const FORMAT_PAINTER = "formatPainter";
+export { FORMAT_PAINTER } from "./config";
+export type {
+	FormatPainterApplyTrigger,
+	FormatPainterConfig,
+	FormatPainterMode,
+} from "./config";
 
 export default class FormatPainter extends Plugin {
   public static get requires() {

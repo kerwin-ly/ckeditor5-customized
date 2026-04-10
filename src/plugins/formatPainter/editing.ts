@@ -1,6 +1,6 @@
 import { Plugin } from '@ckeditor/ckeditor5-core';
 import { FormatPainterCommand } from './command';
-import { FORMAT_PAINTER } from '.';
+import { FORMAT_PAINTER } from './config';
 
 export class FormatPainterEditing extends Plugin {
 	/**

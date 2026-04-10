@@ -1,152 +1,136 @@
-import { Command, Editor } from '@ckeditor/ckeditor5-core';
-import { first } from '@ckeditor/ckeditor5-utils';
+import { Command, type Editor } from "@ckeditor/ckeditor5-core";
+import { first } from "@ckeditor/ckeditor5-utils";
 
-import type { DocumentSelection, Schema, Element, Writer, Selection, Range, Item } from 'ckeditor5/src/engine';
+import type {
+	DocumentSelection,
+	Schema,
+	Writer,
+	Range,
+	Item,
+} from "ckeditor5/src/engine";
 
-const headingMapping = {
-	heading1: 'huge',
-	heading2: 'big'
-};
+import { FORMAT_PAINTER, type FormatPainterConfig, type FormatPainterMode } from "./config";
+
+export type FormatPainterExecuteAction = "copy" | "apply" | "reset";
+export interface FormatPainterExecuteOptions {
+	action: FormatPainterExecuteAction;
+	/**
+	 * When copying, whether the format painter should stay active after apply.
+	 * If omitted, defaults to `false` (single-use).
+	 */
+	persistent?: boolean;
+}
+
+type CopiedAttributes = Record<string, unknown>;
 
 export class FormatPainterCommand extends Command {
-	private waiting: any;
-	private formatNodes: any[] = [];
+	public override value: boolean = false;
+	private _copied: CopiedAttributes | null = null;
+	private _persistent = false;
 
 	constructor(editor: Editor) {
 		super(editor);
-		this.formatNodes = [];
-		this.waiting = null;
-		this.value = false;
 	}
 
 	public override refresh(): void {
 		const model = this.editor.model;
 		const selection = model.document.selection;
-		const start = selection.getFirstPosition();
-		const end = selection.getLastPosition();
-		if (!start || !end || this._isNone(start, end)) {
-			return;
-		}
-
-		const range = model.createRange(start, end);
-		const formatNodes = Array.from(range.getWalker()).filter((walker) => !!(walker.item as any).textNode);
-
-		// if (!formatNodes.length) {
-		// 	this.reset();
-		// 	return;
-		// }
-
-		this.formatNodes = formatNodes;
-		this.isEnabled = true;
+		const hasRange = !selection.isCollapsed;
+		this.isEnabled = hasRange;
 	}
 
-	/**
-	 * @inheritDoc
-	 *
-	 * @param {Object} options
-	 * @param {'copy'|'apply'|'reset'} options.type
-	 */
-	public override execute(options = { type: 'reset' }): void {
-		const { type } = options;
-		if (type === 'reset') {
+	public override execute(options?: Partial<FormatPainterExecuteOptions> & { type?: string }): void {
+		// Backward compatibility: previous API used `{ type: 'copy'|'apply'|'reset' }`.
+		const action = (options?.action ?? options?.type ?? "reset") as FormatPainterExecuteAction;
+
+		if (action === "reset") {
 			this.reset();
 			return;
 		}
 
-		if (type === 'apply' && this.waiting) {
-			this.apply();
+		if (action === "copy") {
+			const persistent = Boolean((options as any)?.persistent);
+
+			// If format painter is already active, allow promoting to persistent mode
+			// even when the current selection is collapsed (e.g. toolbar double-click).
+			if (this.value && this._copied && persistent) {
+				this._persistent = true;
+				return;
+			}
+
+			if (!this.isEnabled) {
+				return;
+			}
+			this.copy(persistent);
 			return;
 		}
 
-		if (type === 'copy' && this.isEnabled) {
-			this.copy();
+		if (action === "apply") {
+			if (!this._copied) {
+				return;
+			}
+			this.apply();
 		}
-	}
-
-	private _isNone(start: any, end: any): boolean {
-		const [sRow, sCol] = start.path;
-		const [eRow, eCol] = end.path;
-		if (sRow === eRow) {
-			return sCol === eCol;
-		}
-
-		return false;
 	}
 
 	public reset(): void {
 		this.value = false;
-		this.formatNodes = [];
-		this.waiting = null;
+		this._copied = null;
+		this._persistent = false;
 	}
 
-	public copy(): void {
+	public copy(persistent = false): void {
+		const mode = this._getConfig().mode ?? "first";
+		const attrs = this._collectAttributesFromSelection(mode);
+
+		// Empty object means "default/plain style". It is a valid copied payload and
+		// should clear formatting on apply.
+		this._copied = attrs;
+		this._persistent = persistent;
 		this.value = true;
-		let attrs = {};
-		this.formatNodes.forEach((node) => {
-			const newAttrs = Object.fromEntries(node.item.textNode.getAttributes());
-			// const parentName = node.item.textNode.parent?.name;
-			// set attrs for heading
-			// if (parentName === 'heading1' || parentName === 'heading2') {
-			// 	Object.assign(newAttrs, {
-			// 		fontSize: headingMapping[parentName as 'heading1' | 'heading2'] || '',
-			// 		bold: true
-			// 	});
-			// }
+	}
 
-			const _keys = Object.keys(newAttrs);
-			if (newAttrs.hasOwnProperty('linkHref')) {
-				delete newAttrs.linkHref;
-			}
-
-			_keys.forEach((key: string) => {
-				if (attrs.hasOwnProperty(key)) {
-					delete newAttrs[key];
-				}
-			});
-
-			if (_keys.length) {
-				attrs = Object.assign({}, attrs, newAttrs);
-			}
-		});
-		this.waiting = attrs;
+	public getCopiedAttributes(): Readonly<CopiedAttributes> | null {
+		return this._copied;
 	}
 
 	public apply(): void {
 		const model = this.editor.model;
 		const selection = model.document.selection;
-		const start = selection.getFirstPosition();
-		const end = selection.getLastPosition();
-
-		if (!start || !end || this._isNone(start, end)) {
+		if (selection.isCollapsed || !this._copied) {
 			return;
 		}
 
-		const selectionRange = model.createRange(start, end);
+		const selectionRange = selection.getFirstRange();
+		if (!selectionRange) {
+			return;
+		}
+
 		model.change((writer: Writer) => {
-			const walkers = selectionRange.getWalker();
-			for (const walker of walkers) {
-				const textNode = (walker.item as any).textNode;
-				if (textNode) {
-					const range = writer.createRange(walker.previousPosition, walker.nextPosition);
-					this.clearAttributes(writer, range);
-					this.setAttributes(writer, range);
-				}
-			}
+			this.clearAttributes(writer, selectionRange);
+			this.setAttributes(writer, selectionRange);
 		});
+
+		if (!this._persistent) {
+			this.reset();
+		}
 	}
 
-	public clearAttributes(writer: Writer, itemRange: any): void {
+	public clearAttributes(writer: Writer, itemRange: Range): void {
 		const model = this.editor.model;
 		const schema = model.schema;
 		for (const item of this._getFormattingItems(model.document.selection, schema)) {
 			if (item.is('selection')) {
 				for (const attributeName of this._getFormattingAttributes(item, schema)) {
-					writer.removeSelectionAttribute(attributeName);
+					if (this._isAttributeAllowed(attributeName)) {
+						writer.removeSelectionAttribute(attributeName);
+					}
 				}
 			} else {
-				// const itemRange = writer.createRangeOn( item );
 				for (const attributeName of this._getFormattingAttributes(item, schema)) {
-					writer.removeAttribute(attributeName, itemRange);
+					if (this._isAttributeAllowed(attributeName)) {
+						writer.removeAttribute(attributeName, itemRange);
+					}
 				}
 			}
 		}
@@ -190,9 +174,84 @@ export class FormatPainterCommand extends Command {
 	}
 
 	public setAttributes(writer: Writer, itemRange: Range): void {
-		// if (!Object.keys(this.waiting).length) {
-		//   writer.clearAttributes(itemRange);
-		// }
-		writer.setAttributes(this.waiting, itemRange);
+		if (!this._copied) {
+			return;
+		}
+		const attrs = Object.fromEntries(
+			Object.entries(this._copied).filter(([name]) => this._isAttributeAllowed(name))
+		);
+		writer.setAttributes(attrs, itemRange);
+	}
+
+	private _getConfig(): FormatPainterConfig {
+		return this.editor.config.get("formatPainter") ?? {};
+	}
+
+	private _isAttributeAllowed(name: string): boolean {
+		const cfg = this._getConfig();
+		const exclude = cfg.exclude ?? [];
+		if (exclude.includes(name)) {
+			return false;
+		}
+		if (cfg.include === "all" || cfg.include == null) {
+			return true;
+		}
+		return cfg.include.includes(name);
+	}
+
+	private _collectAttributesFromSelection(mode: FormatPainterMode): CopiedAttributes {
+		const model = this.editor.model;
+		const selection = model.document.selection;
+		const range = selection.getFirstRange();
+		if (!range) {
+			return {};
+		}
+
+		const textNodes: Array<{ getAttributes(): Iterable<[string, unknown]> }> = [];
+		for (const entry of range.getWalker()) {
+			// `textNode` is an internal field used by the previous implementation.
+			const tn = (entry.item as any)?.textNode;
+			if (tn) {
+				textNodes.push(tn);
+			}
+		}
+
+		if (!textNodes.length) {
+			return {};
+		}
+
+		if (mode === "first") {
+			return this._filterAttributes(Object.fromEntries(textNodes[0].getAttributes()));
+		}
+
+		if (mode === "union") {
+			const out: CopiedAttributes = {};
+			for (const tn of textNodes) {
+				Object.assign(out, Object.fromEntries(tn.getAttributes()));
+			}
+			return this._filterAttributes(out);
+		}
+
+		// "common": intersection of key+value across all nodes.
+		let common = Object.fromEntries(textNodes[0].getAttributes()) as CopiedAttributes;
+		for (let i = 1; i < textNodes.length; i++) {
+			const cur = Object.fromEntries(textNodes[i].getAttributes()) as CopiedAttributes;
+			for (const key of Object.keys(common)) {
+				if (!(key in cur) || cur[key] !== common[key]) {
+					delete common[key];
+				}
+			}
+		}
+		return this._filterAttributes(common);
+	}
+
+	private _filterAttributes(attrs: CopiedAttributes): CopiedAttributes {
+		const out: CopiedAttributes = {};
+		for (const [k, v] of Object.entries(attrs)) {
+			if (this._isAttributeAllowed(k)) {
+				out[k] = v;
+			}
+		}
+		return out;
 	}
 }

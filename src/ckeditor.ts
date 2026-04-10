@@ -194,7 +194,12 @@ export {
 	type FullscreenToggleHost,
 	FullscreenUI,
 };
-export { FORMAT_PAINTER } from "./plugins/formatPainter";
+export {
+	FORMAT_PAINTER,
+	type FormatPainterApplyTrigger,
+	type FormatPainterConfig,
+	type FormatPainterMode,
+} from "./plugins/formatPainter";
 export { FormatPainterCommand } from "./plugins/formatPainter/command";
 export { FormatPainterEditing } from "./plugins/formatPainter/editing";
 export { default as FormatPainterUI } from "./plugins/formatPainter/ui";
