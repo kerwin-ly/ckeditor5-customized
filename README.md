@@ -157,13 +157,13 @@ import DecoupledEditor, {
 ## How to use as an npm package
 
 ```shell
-npm install ckeditor5-customized -S
+npm install bv-ckeditor5 -S
 ```
 
 or
 
 ```shell
-yarn add ckeditor5-customized
+yarn add bv-ckeditor5
 ```
 
 **HTML (Decoupled editor):**
@@ -178,7 +178,7 @@ yarn add ckeditor5-customized
 **JavaScript:**
 
 ```js
-import DecoupledEditor from "ckeditor5-customized";
+import DecoupledEditor from "bv-ckeditor5";
 
 const editorContainer = document.getElementById("editor");
 
