@@ -1,9 +1,9 @@
 {
-  "name": "ckeditor5-customized",
+  "name": "bv-ckeditor5",
   "author": "CKSource",
   "description": "A custom CKEditor 5 build made by the CKEditor 5 online builder.",
   "version": "0.1.0",
-  "homepage": "https://github.com/kerwin-ly/ckeditor5-customized",
+  "homepage": "https://github.com/kerwin-ly/bv-ckeditor5",
   "keywords": [
     "ckeditor5",
     "custom-build"
